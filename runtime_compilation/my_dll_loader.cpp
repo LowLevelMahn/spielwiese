@@ -12,9 +12,6 @@
     #error not supported OS
 #endif  
 
-//using my_dll_func = int(char* u);
-
-//typedef int (*my_dll_func)(const char* u);
 using my_dll_func = int(const char* u);
 
 int main()
