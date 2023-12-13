@@ -1,0 +1,27 @@
+https://llvm.org/docs/CMake.html
+https://stackoverflow.com/questions/68752972/how-do-you-build-all-of-llvm
+https://static.linaro.org/connect/yvr18/presentations/yvr18-223.pdf
+
+0. mkdir and cd d:\llvm_dev
+1. git clone https://github.com/llvm/llvm-project
+2. cd llvm-project
+3. git checkout llvmorg-17.0.6
+4. cd ..
+5. mkdir _build
+6. cd _build
+7. cmake -DLLVM_ENABLE_PROJECTS="clang;clang-tools-extra" -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=d:\llvm_dev\_install -DLLVM_TARGETS_TO_BUILD=X86  ..\llvm-project\llvm
+   cmake -DLLVM_ENABLE_PROJECTS="clang;clang-tools-extra" -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=d:\llvm_dev\_install -DLLVM_TARGETS_TO_BUILD=X86  ..\llvm-project\llvm
+8. cmake --build .
+9. cmake --build . --target install
+
+----------------
+
+https://blog.memzero.de/llvm-orc-jit/
+https://git.memzero.de/blog/tree/content/2022-07-07-llvm-orc-jit
+git:
+https://git.memzero.de/blog
+in content\2022-07-07-llvm-orc-jit
+
+mkdir _test_build
+_test_build> cmake -DCMAKE_PREFIX_PATH=d:\llvm_dev\_install ..\memzero_blog\content\2022-07-07-llvm-orc-jit
+_test_build> cmake --build .

@@ -60,8 +60,17 @@ public:
     // JD.addGenerator(
     //     cantFail(DynamicLibrarySearchGenerator::GetForCurrentProcess(
     //         DL.getGlobalPrefix())));
+#if 0
+    // LLVM 13.x
     (void)JD.define(llvm::orc::absoluteSymbols(
         {{Mangle("libc_puts"), llvm::JITEvaluatedSymbol::fromPointer(&puts)}}));
+#else
+    // LLVM 17.x compiles but throws exception
+    (void)JD.define(llvm::orc::absoluteSymbols(
+        {{Mangle("libc_puts"),
+          llvm::orc::ExecutorSymbolDef(llvm::orc::ExecutorAddr::fromPtr(puts),
+                                       {})}}));
+#endif
   }
 
   ~Jit() {
@@ -90,9 +99,17 @@ public:
     return RT;
   }
 
+#if 0
+  // LLVM 13.x
   Expected<JITEvaluatedSymbol> lookup(StringRef Name) {
     return ES->lookup({&JD}, Mangle(Name.str()));
   }
+#else
+  // LLVM 17.x compiles but throws exception
+  Expected<llvm::orc::ExecutorSymbolDef> lookup(StringRef Name) {
+      return ES->lookup({&JD}, Mangle(Name.str()));
+  }
+#endif
 };
 
 } // namespace jit
