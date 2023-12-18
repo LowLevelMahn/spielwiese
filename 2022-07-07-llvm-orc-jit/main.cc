@@ -29,16 +29,6 @@ int main() {
     throw_on_error(RT.takeError());
 
   if (auto ADDR = JIT->lookup("init")) {
-#if 0
-    // LLVM 13.x
-    std::printf("JIT ADDR 0x%lx\n", (*ADDR).getAddress());
-
-    struct S {
-      int a, b;
-    } state = {0, 0};
-    auto JIT_FN = (void (*)(struct S *))(*ADDR).getAddress();
-#else
-    // LLVM 17.x
     const llvm::orc::ExecutorAddr& addr = ADDR->getAddress();
 
     struct S {
@@ -47,7 +37,6 @@ int main() {
     using init_func_type = void(struct S * s);
     auto JIT_FN = addr.toPtr<init_func_type>();
     std::printf("JIT ADDR 0x%lx\n", JIT_FN);
-#endif
 
     std::printf("S { a=%d b=%d }\n", state.a, state.b);
     JIT_FN(&state);
