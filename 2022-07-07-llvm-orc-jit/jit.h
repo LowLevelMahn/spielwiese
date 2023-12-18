@@ -13,6 +13,7 @@
 #include <llvm/IR/DataLayout.h>
 #include <llvm/IR/LLVMContext.h>
 
+#include "common.hpp"
 namespace jit {
 
 using llvm::DataLayout;
@@ -65,11 +66,12 @@ public:
     (void)JD.define(llvm::orc::absoluteSymbols(
         {{Mangle("libc_puts"), llvm::JITEvaluatedSymbol::fromPointer(&puts)}}));
 #else
+    ObjectLayer.setOverrideObjectFlagsWithResponsibilityFlags(true);
     // LLVM 17.x compiles but throws exception
-    (void)JD.define(llvm::orc::absoluteSymbols(
+    throw_on_error(JD.define(llvm::orc::absoluteSymbols(
         {{Mangle("libc_puts"),
-          llvm::orc::ExecutorSymbolDef(llvm::orc::ExecutorAddr::fromPtr(puts),
-                                       {})}}));
+          llvm::orc::ExecutorSymbolDef(llvm::orc::ExecutorAddr::fromPtr(&puts),
+                                       {})}})));
 #endif
   }
 
@@ -107,6 +109,10 @@ public:
 #else
   // LLVM 17.x compiles but throws exception
   Expected<llvm::orc::ExecutorSymbolDef> lookup(StringRef Name) {
+            std::string dump{};
+            llvm::raw_string_ostream sstr(dump);
+            ES->dump(sstr);
+            printf("ES->dump:\n%s\n", dump.c_str());
       return ES->lookup({&JD}, Mangle(Name.str()));
   }
 #endif

@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.20.0)
 project(llvm-orc-jit)
 
-set (CMAKE_CXX_STANDARD 17)
+set (CMAKE_CXX_STANDARD 20)
 
 find_package(LLVM REQUIRED CONFIG)
 
@@ -20,7 +20,7 @@ separate_arguments(LLVM_DEFINITIONS_LIST NATIVE_COMMAND ${LLVM_DEFINITIONS})
 add_definitions(${LLVM_DEFINITIONS_LIST})
 
 # Now build our tools
-add_executable(llvm-orc-jit main.cc jit.h ccompiler.h)
+add_executable(llvm-orc-jit main.cc common.cpp jit.h ccompiler.h common.hpp)
 
 # Find the libraries that correspond to the LLVM components
 # that we wish to use

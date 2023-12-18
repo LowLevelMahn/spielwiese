@@ -1,4 +1,5 @@
 #include "ccompiler.h"
+#include "common.hpp"
 #include "jit.h"
 
 int main() {
@@ -11,6 +12,7 @@ int main() {
                       "libc_puts(\"libc_puts()\"); }";
 
   auto R = cc::CCompiler().compile(code);
+    throw_on_error(R.takeError());
   // Abort if compilation failed.
   auto [C, M] = cantFail(std::move(R));
   // M->print(llvm::errs(), nullptr);
@@ -24,10 +26,7 @@ int main() {
   auto TSM = llvm::orc::ThreadSafeModule(std::move(M), std::move(C));
 
   auto RT = JIT->addModule(std::move(TSM));
-  if (auto E = RT.takeError()) {
-    llvm::errs() << llvm::toString(std::move(E)) << '\n';
-    return 1;
-  }
+    throw_on_error(RT.takeError());
 
   if (auto ADDR = JIT->lookup("init")) {
 #if 0
@@ -56,13 +55,16 @@ int main() {
   }
 
   // Remove jitted code tracked by this RT.
-  (void)(*RT)->remove();
+    throw_on_error((*RT)->remove());
 
+#if 0
   if (auto E = JIT->lookup("init").takeError()) {
-    llvm::errs() << "Expected error, we dropped removed code tracked by RT and "
+        llvm::errs()
+            << "Expected error, we dropped removed code tracked by RT and "
                     "hence 'init' should be "
                     "removed from the JIT!\n";
   }
+#endif
 
   return 0;
 }
