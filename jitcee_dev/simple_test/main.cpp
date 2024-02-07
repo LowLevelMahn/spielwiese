@@ -78,7 +78,7 @@ int main(int argc, char *argv[] )
             "extern \"C\" void init(struct S* s) {"
             "init_a(s); init_b(s);"
             "libc_puts(\"libc_puts()\");"
-            "libc_printf(\"%u\\n\", __cplusplus); }";
+            "libc_printf(\"printf: %u\\n\", __cplusplus); }";
 
         auto throw_on_error = []( int status_code_ ){ if ( status_code_ != 0 ) throw std::runtime_error(""); };
 
