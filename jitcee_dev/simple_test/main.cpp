@@ -1,6 +1,7 @@
 #include "Dll_lib.hpp"
 
 #include <iostream>
+#include <cstdio>
 
 using f_void = int();
 using f_ptr = int(void*);
@@ -41,7 +42,7 @@ int main(int argc, char *argv[] )
 {
     try 
     {
-        Dll_lib lib_handle{R"(D:\projects\haas\llvm_dev\_test_build_release\jitcee\Release\jitcee.dll)"};
+        Dll_lib lib_handle{R"(D:\projects\haas\llvm_dev\_test_build_debug\jitcee\Debug\jitcee.dll)"};
 
         Funcs funcs;
         funcs.jitcee_initialize = lib_handle.get_function_address<f_void>("jitcee_initialize" );
@@ -66,13 +67,18 @@ int main(int argc, char *argv[] )
         funcs.jitcee_resource_tracker_free = lib_handle.get_function_address<f_ptr>("jitcee_resource_tracker_free" );
 
         const char code[] =
-            "extern void libc_puts(const char*);"
+            "class C{};"
+            "template<typename X> X my_func(X x){ return x; }"
+            "constexpr int brk = 23;"
+            "extern \"C\" void libc_puts(const char*);"
+            "extern \"C\" int libc_printf ( const char * format, ... );"
             "struct S { int a; int b; };"
             "static void init_a(struct S* s) { s->a = 1111; }"
             "static void init_b(struct S* s) { s->b = 2222; }"
-            "void init(struct S* s) {"
+            "extern \"C\" void init(struct S* s) {"
             "init_a(s); init_b(s);"
-            "libc_puts(\"libc_puts()\"); }";
+            "libc_puts(\"libc_puts()\");"
+            "libc_printf(\"%u\\n\", __cplusplus); }";
 
         auto throw_on_error = []( int status_code_ ){ if ( status_code_ != 0 ) throw std::runtime_error(""); };
 
@@ -93,6 +99,8 @@ int main(int argc, char *argv[] )
         void* external_symbols_handle;
         throw_on_error( funcs.jitcee_external_symbols_create( jit_handle, &external_symbols_handle ));
         throw_on_error( funcs.jitcee_external_symbols_add( external_symbols_handle, "libc_puts", &puts ));
+        throw_on_error(funcs.jitcee_external_symbols_add(
+            external_symbols_handle, "libc_printf", &printf));
         throw_on_error( funcs.jitcee_external_symbols_apply( jit_handle, external_symbols_handle )); //TODO possible to use a wrong jit_handle!
         void* resource_track_handle;
         throw_on_error( funcs.jitcee_jit_add_thread_safe_module( jit_handle, compile_result_handle, &resource_track_handle ) );

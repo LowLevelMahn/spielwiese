@@ -32,14 +32,18 @@ std::unique_ptr<Compiler_instance> Compiler::create_compiler_instance() const
     return compiler_instance;
 }
 
+// other samples: https://wiki.nervtech.org/doku.php?id=blog:2020:0414_jit_cpp_compiler
+
 Compile_result Compiler::compile( Compiler_instance* compiler_instance_, const char* code) const 
 {
     const auto err = [](llvm::errc ec) { return std::error_code(static_cast<int>(ec), std::generic_category()); };
 
-    const char code_fname[] = "jit.c"; //TODO
+    const char code_fname[] = "jit.cpp"; //TODO .c means only C compiler, .cpp means C++ compiler
 
     auto* instance = compiler_instance_->instance();
-    bool ok = clang::CompilerInvocation::CreateFromArgs(instance->getInvocation(), {code_fname}, *m_diagnistic_engine);
+    //bool ok = clang::CompilerInvocation::CreateFromArgs(instance->getInvocation(), {code_fname}, *m_diagnistic_engine);
+    bool ok = clang::CompilerInvocation::CreateFromArgs(
+        instance->getInvocation(), {code_fname}, *m_diagnistic_engine);
     assert(ok);
 
     instance->createDiagnostics(m_diagnostic_consumer.get(), false);
