@@ -31,14 +31,14 @@ extern "C" {
     //TODO more compile options???
 
     // External symbols
-    SHARED_API int jitcee_external_symbols_create( void* jit_handle, void** external_symbols_handle ) noexcept;
+    SHARED_API int jitcee_external_symbols_create( void** external_symbols_handle ) noexcept;
     SHARED_API int jitcee_external_symbols_add( void* external_symbols_handle, const char* symbol_name, void* function_ptr ) noexcept;
-    SHARED_API int jitcee_external_symbols_apply( void* jit_handle, void* external_symbols_handle ) noexcept;
     SHARED_API int jitcee_external_symbols_free( void* external_symbols_handle ) noexcept;
 
     // Jit
     SHARED_API int jitcee_jit_create( void** jit_handle ) noexcept;
     SHARED_API int jitcee_jit_free( void* jit_handle ) noexcept;
+    SHARED_API int jitcee_jit_apply_external_symbols( void* jit_handle, void* external_symbols_handle ) noexcept;
     SHARED_API int jitcee_jit_add_thread_safe_module( void* jit_handle, void* compile_result_handle, void** resource_tracker_handle ) noexcept;
     SHARED_API int jitcee_jit_lookup( void* jit_handle, const char* symbol_name, void** function_ptr ) noexcept;
     SHARED_API int jitcee_resource_tracker_free( void* resource_tracker_handle_ ) noexcept;

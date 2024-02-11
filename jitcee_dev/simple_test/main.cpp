@@ -27,9 +27,9 @@ struct Funcs
     f_ptr* jitcee_compiler_instance_free{};
     f_ptr_int* jitcee_compile_options_set_optimization_level{};
     f_ptr_int* jitcee_compile_options_set_inlining{};
-    f_ptr_ptr2* jitcee_external_symbols_create{};
+    f_ptr* jitcee_external_symbols_create{};
     f_ptr_char_ptr* jitcee_external_symbols_add{};
-    f_ptr_ptr* jitcee_external_symbols_apply{};
+    f_ptr_ptr* jitcee_jit_apply_external_symbols{};
     f_ptr* jitcee_external_symbols_free{};
     f_ptr2* jitcee_jit_create{};
     f_ptr* jitcee_jit_free{};
@@ -56,9 +56,9 @@ int main(int argc, char *argv[] )
         funcs.jitcee_compiler_instance_free = lib_handle.get_function_address<f_ptr>("jitcee_compiler_instance_free" ); 
         funcs.jitcee_compile_options_set_optimization_level = lib_handle.get_function_address<f_ptr_int>("jitcee_compile_options_set_optimization_level" );
         funcs.jitcee_compile_options_set_inlining = lib_handle.get_function_address<f_ptr_int>("jitcee_compile_options_set_inlining" );
-        funcs.jitcee_external_symbols_create = lib_handle.get_function_address<f_ptr_ptr2>("jitcee_external_symbols_create" );
+        funcs.jitcee_external_symbols_create = lib_handle.get_function_address<f_ptr>("jitcee_external_symbols_create" );
         funcs.jitcee_external_symbols_add = lib_handle.get_function_address<f_ptr_char_ptr>("jitcee_external_symbols_add" );
-        funcs.jitcee_external_symbols_apply = lib_handle.get_function_address<f_ptr_ptr>("jitcee_external_symbols_apply" );
+        funcs.jitcee_jit_apply_external_symbols = lib_handle.get_function_address<f_ptr_ptr>("jitcee_jit_apply_external_symbols" );
         funcs.jitcee_external_symbols_free = lib_handle.get_function_address<f_ptr>("jitcee_external_symbols_free" );
         funcs.jitcee_jit_create = lib_handle.get_function_address<f_ptr2>("jitcee_jit_create" );
         funcs.jitcee_jit_free = lib_handle.get_function_address<f_ptr>("jitcee_jit_free" );
@@ -97,11 +97,9 @@ int main(int argc, char *argv[] )
         throw_on_error( funcs.jitcee_jit_create( &jit_handle ) );
          
         void* external_symbols_handle;
-        throw_on_error( funcs.jitcee_external_symbols_create( jit_handle, &external_symbols_handle ));
+        throw_on_error( funcs.jitcee_external_symbols_create( &external_symbols_handle ));
         throw_on_error( funcs.jitcee_external_symbols_add( external_symbols_handle, "libc_puts", &puts ));
-        throw_on_error(funcs.jitcee_external_symbols_add(
-            external_symbols_handle, "libc_printf", &printf));
-        throw_on_error( funcs.jitcee_external_symbols_apply( jit_handle, external_symbols_handle )); //TODO possible to use a wrong jit_handle!
+        throw_on_error( funcs.jitcee_jit_apply_external_symbols( jit_handle, external_symbols_handle ));
         void* resource_track_handle;
         throw_on_error( funcs.jitcee_jit_add_thread_safe_module( jit_handle, compile_result_handle, &resource_track_handle ) );
         void* function_handle;

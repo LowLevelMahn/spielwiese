@@ -37,14 +37,14 @@ Jit::~Jit()
     }
 }
 
-llvm::orc::MangleAndInterner* Jit::get_mangler() const 
-{
-    return m_mangler.get();
-}
-
 void Jit::apply_external_symbols( External_symbols* symbol_map_  ) const
 {
-    throw_on_error(m_jit_dylib.define( llvm::orc::absoluteSymbols(symbol_map_->data())));
+    llvm::orc::SymbolMap symbols;
+    for ( const auto& [name, function] : symbol_map_->data() ) 
+    {
+        symbols.try_emplace( (*m_mangler)(name), llvm::orc::ExecutorSymbolDef(llvm::orc::ExecutorAddr::fromPtr(function), {}) );
+    }
+    throw_on_error(m_jit_dylib.define( llvm::orc::absoluteSymbols(symbols)));
 }
 
 Heaper<llvm::orc::ResourceTrackerSP>* Jit::add_thread_safe_module( Compile_result* result_ ) const
@@ -67,23 +67,19 @@ std::string Jit::dump() const
     return str;
 }
 
-const llvm::orc::ExecutorSymbolDef& Jit::lookup( const char* name_ ) const
+void* Jit::lookup( const char* name_ ) const
 {
     llvm::Expected<llvm::orc::ExecutorSymbolDef> x = m_execution_session->lookup({&m_jit_dylib}, (*m_mangler)(name_));
     throw_on_error(x.takeError());
-    return x.get();
+    return x.get().getAddress().toPtr<void*>();
 }
            
-External_symbols::External_symbols( llvm::orc::MangleAndInterner* mangler_ ) : m_mangler(mangler_)
-{  
-}
-
 void External_symbols::add_external( const char* name_, void* ptr_ )
 {
-    m_external_symbols.try_emplace( (*m_mangler)(name_), llvm::orc::ExecutorSymbolDef(llvm::orc::ExecutorAddr::fromPtr(ptr_), {}) );
+    m_external_symbols.try_emplace( name_, ptr_);
 }
         
-const llvm::orc::SymbolMap& External_symbols::data() 
+const std::unordered_map<std::string, void*>& External_symbols::data() 
 {
     return m_external_symbols;
 }
