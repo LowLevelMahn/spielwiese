@@ -15,6 +15,11 @@ Dll_lib::Dll_lib(const char* library_name_)
     load_library( library_name_ );
 }
 
+Dll_lib::~Dll_lib()
+{
+    unload_library();
+}
+
 void Dll_lib::load_library( const char* library_name_ )
 {
 #ifdef __linux__
@@ -28,7 +33,7 @@ void Dll_lib::load_library( const char* library_name_ )
     }
 }   
 
-void* Dll_lib::get_function_address_internal( const char* function_name_ )
+void* Dll_lib::get_function_address_internal( const char* function_name_ ) const
 {
     void* func_ptr{};
 #ifdef __linux__
