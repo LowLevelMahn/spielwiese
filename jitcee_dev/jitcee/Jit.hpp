@@ -25,6 +25,8 @@ namespace llvm
         class RTDyldObjectLinkingLayer;
         class IRCompileLayer;
         class JITDylib;
+        class IRTransformLayer;
+        class ObjectTransformLayer;
     }
 }
 
@@ -51,7 +53,9 @@ namespace jitcee {
           std::unique_ptr<llvm::orc::MangleAndInterner> m_mangler;
 
           std::unique_ptr<llvm::orc::RTDyldObjectLinkingLayer> m_object_layer;
+          std::unique_ptr<llvm::orc::ObjectTransformLayer> m_dump_layer; 
           std::unique_ptr<llvm::orc::IRCompileLayer> m_compile_layer;
+          std::unique_ptr<llvm::orc::IRTransformLayer> m_optimize_layer;
 
           llvm::orc::JITDylib& m_jit_dylib;
     };
