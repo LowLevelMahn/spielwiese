@@ -1,6 +1,8 @@
 #pragma once
 
 #include <memory>
+#include <unordered_map>
+
 #include "common.hpp"
 #include <llvm/ExecutionEngine/Orc/Core.h>
 
@@ -23,6 +25,8 @@ namespace llvm
         class RTDyldObjectLinkingLayer;
         class IRCompileLayer;
         class JITDylib;
+        class IRTransformLayer;
+        class ObjectTransformLayer;
     }
 }
 
@@ -40,8 +44,7 @@ namespace jitcee {
         void apply_external_symbols( External_symbols* symbol_map_ ) const;
         Heaper<llvm::orc::ResourceTrackerSP>* add_thread_safe_module( Compile_result* result_ ) const;
         std::string dump() const;
-        const llvm::orc::ExecutorSymbolDef& lookup( const char* name_ ) const;
-        llvm::orc::MangleAndInterner* get_mangler() const;
+        void* lookup( const char* name_ ) const;
 
       private:
           std::unique_ptr<llvm::orc::ExecutionSession> m_execution_session;
@@ -50,7 +53,9 @@ namespace jitcee {
           std::unique_ptr<llvm::orc::MangleAndInterner> m_mangler;
 
           std::unique_ptr<llvm::orc::RTDyldObjectLinkingLayer> m_object_layer;
+          std::unique_ptr<llvm::orc::ObjectTransformLayer> m_dump_layer; 
           std::unique_ptr<llvm::orc::IRCompileLayer> m_compile_layer;
+          std::unique_ptr<llvm::orc::IRTransformLayer> m_optimize_layer;
 
           llvm::orc::JITDylib& m_jit_dylib;
     };
@@ -58,13 +63,10 @@ namespace jitcee {
     class External_symbols
     {
         public:
-        External_symbols( llvm::orc::MangleAndInterner* mangler_ );
-
         void add_external( const char* name_, void* ptr_ );
-        const llvm::orc::SymbolMap& data();
+        const std::unordered_map<std::string, void*>& data();
 
     private:
-        llvm::orc::SymbolMap m_external_symbols;
-        llvm::orc::MangleAndInterner* m_mangler{}; 
+        std::unordered_map<std::string, void*> m_external_symbols;
     };
 } // namespace jitcee

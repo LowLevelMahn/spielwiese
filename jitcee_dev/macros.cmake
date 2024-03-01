@@ -27,22 +27,24 @@ macro (DEFINE_STATIC_LIBRARY TARGET PARENT_NAME)
          LIBRARY DESTINATION ${PROJECT_SOURCE_DIR}/_install)
 endmacro()
 
+# see https://stackoverflow.com/questions/56514533/how-to-specify-the-output-directory-of-a-given-dll
+# dll plotforms need RUNTIME_OUTPUT_DIRECTORY and non dll platforms LIBRARY_OUTPUT_DIRECTORY
 macro (DEFINE_DYNAMIC_LIBRARY TARGET PARENT_NAME)
     add_library(${TARGET} SHARED ${ALL_FILES})
-    set_target_properties(${TARGET} PROPERTIES FOLDER ${PARENT_NAME})
+    set_target_properties(${TARGET} PROPERTIES 
+        FOLDER ${PARENT_NAME}
+        LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin/${CONFIG}"
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin/${CONFIG}"
+    )
     set(ROOT_NAMESPACE ${TARGET})
 endmacro()
 
 macro (DEFINE_EXECUTABLE TARGET PARENT_NAME)
-    set(OUTPUT_PATH 
-      $<$<CONFIG:Debug>:${PROJECT_BINARY_DIR}/bin/Debug>
-      $<$<NOT:$<CONFIG:Debug>>:${PROJECT_BINARY_DIR}/bin/Release>
-    )
     add_executable(${TARGET} ${ALL_FILES})
     set_target_properties(${TARGET} PROPERTIES 
         FOLDER ${PARENT_NAME}
-        RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_PATH}
-        VS_DEBUGGER_WORKING_DIRECTORY ${OUTPUT_PATH}
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin/${CONFIG}"
+        VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/bin/${CONFIG}"
     )
     set(ROOT_NAMESPACE ${TARGET}) 
 endmacro()

@@ -36,7 +36,7 @@ separate_arguments(LLVM_DEFINITIONS_LIST NATIVE_COMMAND ${LLVM_DEFINITIONS})
 add_definitions(${LLVM_DEFINITIONS_LIST})
 
 # Link against LLVM libraries
-target_link_libraries(${PROJECT_NAME} PRIVATE LLVMSupport LLVMCore LLVMOrcJIT LLVMJITLink)
+target_link_libraries(${PROJECT_NAME} PRIVATE LLVMCore LLVMOrcJIT LLVMJITLink)
 
 target_include_directories(${PROJECT_NAME} PRIVATE ${CLANG_INCLUDE_DIRS} )
-target_link_libraries(${PROJECT_NAME} PRIVATE clangTooling clangCodeGen clangSupport LLVMX86Info LLVMX86TargetMCA LLVMX86CodeGen)
+target_link_libraries(${PROJECT_NAME} PRIVATE clangCodeGen LLVMX86Info LLVMX86CodeGen)

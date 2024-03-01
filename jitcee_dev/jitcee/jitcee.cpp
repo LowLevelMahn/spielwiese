@@ -94,9 +94,9 @@ int jitcee_jit_free( void* jit_handle_ ) noexcept
     return 0;
 }
 
-int jitcee_external_symbols_create( void* jit_handle_, void** external_symbols_handle_ ) noexcept
+int jitcee_external_symbols_create( void** external_symbols_handle_ ) noexcept
 {
-   error_on_throw( *external_symbols_handle_ = new jitcee::External_symbols(static_cast<jitcee::Jit*>(jit_handle_)->get_mangler()); );
+   error_on_throw( *external_symbols_handle_ = new jitcee::External_symbols(); );
 }
 
 int jitcee_external_symbols_add( void* external_symbols_handle_, const char* symbol_name_, void* function_ptr_ ) noexcept
@@ -104,7 +104,7 @@ int jitcee_external_symbols_add( void* external_symbols_handle_, const char* sym
     error_on_throw( static_cast<jitcee::External_symbols*>(external_symbols_handle_)->add_external( symbol_name_, function_ptr_); );
 }
 
-int jitcee_external_symbols_apply( void* jit_handle_, void* external_symbols_handle_ ) noexcept
+int jitcee_jit_apply_external_symbols( void* jit_handle_, void* external_symbols_handle_ ) noexcept
 {
    error_on_throw( static_cast<jitcee::Jit*>(jit_handle_)->apply_external_symbols(static_cast<jitcee::External_symbols*>(external_symbols_handle_) ); );
 }
@@ -137,7 +137,7 @@ int jitcee_jit_add_thread_safe_module( void* jit_handle_, void* compile_result_h
 
 int jitcee_jit_lookup( void* jit_handle_, const char* symbol_name_, void** function_ptr_ ) noexcept
 {
-   error_on_throw( *function_ptr_ = static_cast<jitcee::Jit*>(jit_handle_)->lookup(symbol_name_).getAddress().toPtr<void*>(); );
+   error_on_throw( *function_ptr_ = static_cast<jitcee::Jit*>(jit_handle_)->lookup(symbol_name_); );
 }
 
 int jitcee_resource_tracker_free( void* resource_tracker_handle_ ) noexcept

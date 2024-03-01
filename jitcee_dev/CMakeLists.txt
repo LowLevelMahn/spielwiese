@@ -4,13 +4,6 @@ project(llvm-orc-jit)
 set (CMAKE_CXX_STANDARD 20)
 set (CMAKE_CXX_STANDARD_REQUIRED ON)
 
-find_package(LLVM REQUIRED CONFIG)
-
-message(STATUS "Found LLVM ${LLVM_PACKAGE_VERSION}")
-message(STATUS "Using LLVMConfig.cmake in: ${LLVM_DIR}")
-
-find_package(Clang REQUIRED CONFIG)
-
 set(HEADER_FILTER "includes")
 set(SOURCE_FILTER "sources")
 
@@ -19,4 +12,5 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP4 /external:W0 /external:anglebracket
 include(macros.cmake)
 
 add_subdirectory (jitcee)
+add_subdirectory (jitcee_lib)
 add_subdirectory (simple_test)
